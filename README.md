@@ -17,6 +17,15 @@
   <img src="https://img.shields.io/badge/大模型-订阅_or_API-purple.svg" alt="LLM">
 </p>
 
+<p align="center">
+  <a href="#这是什么">这是什么</a> ·
+  <a href="#能力-features">能力</a> ·
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#工作原理">工作原理</a> ·
+  <a href="#配置大模型订阅--api-二选一">配置大模型</a> ·
+  <a href="#覆盖赛道与信息源">覆盖赛道</a>
+</p>
+
 ---
 
 ## 这是什么
