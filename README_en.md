@@ -1,3 +1,5 @@
+<p align="center"><a href="README.md">简体中文</a> | <b>English</b></p>
+
 # Investment News
 
 [中文](README.md) · **English**
@@ -32,7 +34,7 @@ When it helps:
 
 > 📊 **It presents industry trends and leading signals — not market data, and not financial advice.**
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
@@ -45,13 +47,13 @@ When it helps:
 | **Local** | Fetching and rendering both run locally; data never leaves your machine — no database, no hosting, no RSSHub |
 | **Filter** | Built-in keyword filtering removes gambling / prediction markets / crypto / adult content; politics and finance are kept |
 
-## 📸 Screenshot
+## Screenshot
 
 ![dashboard](docs/screenshot.png)
 
 > **The browser dashboard is the deliverable.** Once running, everything ends at `http://localhost:8793` — the key points, translations, per-sector view, and source links all live on that page.
 
-## 🚀 Quick Start
+## Quick Start
 
 **Requirements**: Python 3.7+ (stdlib only — **no third-party packages**) + one LLM (pick one below).
 
@@ -67,7 +69,7 @@ open http://localhost:8793   # Windows: start, Linux: xdg-open
 # 4) Click ⟳ (top-left) to trigger fetch + AI summary; it auto-refreshes on completion
 ```
 
-## ⚙️ How It Works
+## How It Works
 
 ```
 sources.json  (108 sources / 12 sectors)
@@ -84,7 +86,7 @@ sources.json  (108 sources / 12 sectors)
 
 The entire pipeline is **pure Python stdlib + one LLM** — no database, no RSSHub, no hosting. In `claude-cli` mode, `digest` invokes the local `claude -p` (subscription auth, all tools disabled, text-only) — **local-only, $0**.
 
-## 🤖 Configure your LLM (subscription / API)
+## Configure your LLM (subscription / API)
 
 Edit `llm.config.json`:
 
@@ -100,7 +102,7 @@ Edit `llm.config.json`:
   "api": { "base_url": "https://api.deepseek.com", "api_key": "sk-...", "model": "deepseek-chat" } }
 ```
 
-## 🌐 Sectors & Sources
+## Sectors & Sources
 
 12 sectors, 108 curated sources — **authoritative English media and Chinese vertical media in balance**, e.g.:
 
@@ -112,7 +114,7 @@ Edit `llm.config.json`:
 
 > Full list in `sources.json`. To add, remove, or fix sources, edit that one file.
 
-## ➕ Add a source = one line
+## Add a source = one line
 
 Add a line to the `sources` array in `sources.json` — no code changes:
 
@@ -123,7 +125,7 @@ Add a line to the `sources` array in `sources.json` — no code changes:
 `hint` is the sector key (ai / semi / robot / auto / energy / bio / space / security / tech / consumer / macro / science).
 `fetch.recent_days` sets the time window (default 7); `redline_keywords` is the compliance filter.
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 investment-news/
@@ -140,13 +142,13 @@ investment-news/
 └── docs/screenshot.png
 ```
 
-## 🧰 Stack & Dependencies
+## Stack & Dependencies
 
 - **Python 3.7+**, **stdlib only** (urllib / json / xml.etree / http.server / subprocess) — fetching and dashboard have zero third-party deps.
 - **One LLM**: local Claude Code subscription (`claude-cli`, $0) or any OpenAI-compatible API key.
 - Internet access to reach sources (some international ones may need a proxy).
 
-## ⚖️ Responsible Use / Disclaimer
+## Responsible Use / Disclaimer
 
 - **Local only**: no hosting, upload, or server side; data stays on your machine.
 - **Reads public RSS / endpoints only**, at low frequency, respecting each source's Terms of Service.
@@ -154,13 +156,7 @@ investment-news/
 
 Provided "as is" under the [MIT License](LICENSE), without warranty of any kind.
 
-## 🙋 Author
-
-**Author:** Simon Lin · X [@linsizhen](https://x.com/linsizhen) · TikTok [@simonlin0423](https://www.tiktok.com/@simonlin0423) · Email: [simonlin0423@gmail.com](mailto:simonlin0423@gmail.com)
-
-A local dashboard that distills global industry news into key points. PRs welcome for more sectors and sources.
-
-## ☕ Support
+## Support
 
 If this tool saved you time, a coffee is appreciated.
 
@@ -168,6 +164,10 @@ If this tool saved you time, a coffee is appreciated.
   <a href="https://buymeacoffee.com/simonlin1212"><img src="./assets/bmc-qr.png" width="180" alt="Buy Me a Coffee"></a>
 </p>
 
-## 📄 License
+## License
 
 [MIT](LICENSE)
+
+A local dashboard that distills global industry news into key points. PRs welcome for more sectors and sources.
+
+**Author:** Simon Lin · X [@linsizhen](https://x.com/linsizhen) · TikTok [@simonlin0423](https://www.tiktok.com/@simonlin0423) · Email: [simonlin0423@gmail.com](mailto:simonlin0423@gmail.com)

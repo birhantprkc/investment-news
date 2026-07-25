@@ -1,6 +1,6 @@
-# Investment News · 投资资讯
+<p align="center"><b>简体中文</b> | <a href="README_en.md">English</a></p>
 
-**中文** · [English](README.en.md)
+# Investment News · 投资资讯
 
 <p align="center">
   <b>为 A股投资者追踪全球产业链领先信号 —— 12 大赛道一一对应 A股板块，覆盖 100+ 权威源，AI 每日提炼为中文要点，全程本地、零 API key。</b><br>
@@ -33,7 +33,7 @@
 
 > 📊 **本工具呈现的是行业动向与领先信号，并非行情数据，更不构成投资建议。** Industry trends, **not financial advice**.
 
-## ✨ 能力 Features
+## 能力 Features
 
 | 能力 | 说明 |
 |---|---|
@@ -46,13 +46,13 @@
 | **本⁠地⁠运⁠行** | 抓取与呈现均在本地完成，数据全程留存本机；无数据库、无托管、无 RSSHub |
 | **合⁠规⁠过⁠滤** | 内置关键词过滤，自动剔除博彩、预测市场、加密货币、色情类内容；时政、财经正常收录 |
 
-## 📸 截图 Screenshot
+## 截图 Screenshot
 
 ![dashboard](docs/screenshot.png)
 
 > **本工具的核心交付物是这个浏览器看板。** 运行后，所有操作的终点都是访问 `http://localhost:8793` —— 今日要点、中文翻译、赛道分区、原文跳转，均集中于该页面。
 
-## 🚀 快速开始
+## 快速开始
 
 **环境要求**：Python 3.7+（标准库即可，**无需安装任何第三方包**）+ 一个大模型（下方二选一）。
 
@@ -68,7 +68,7 @@ open http://localhost:8793   # Windows 使用 start，Linux 使用 xdg-open
 # 4) 点击左上角 ⟳，触发抓取与 AI 摘要，完成后自动刷新
 ```
 
-## ⚙️ 工作原理
+## 工作原理
 
 ```
 sources.json  (108 个源 / 12 赛道)
@@ -85,7 +85,7 @@ sources.json  (108 个源 / 12 赛道)
 
 全流程基于**纯 Python 标准库 + 一个大模型**，无数据库、无 RSSHub、无托管服务。`claude-cli` 模式下，`digest` 调用本机 `claude -p`（订阅鉴权、禁用全部工具、仅处理文本），**仅本地可用、零成本**。
 
-## 🤖 配置大模型（订阅 / API 二选一）
+## 配置大模型（订阅 / API 二选一）
 
 编辑 `llm.config.json`：
 
@@ -101,7 +101,7 @@ sources.json  (108 个源 / 12 赛道)
   "api": { "base_url": "https://api.deepseek.com", "api_key": "sk-...", "model": "deepseek-chat" } }
 ```
 
-## 🌐 覆盖赛道与信息源
+## 覆盖赛道与信息源
 
 12 大赛道、108 个精选源，**英文权威媒体与中文垂直媒体并重**，例如：
 
@@ -113,7 +113,7 @@ sources.json  (108 个源 / 12 赛道)
 
 > 完整清单见 `sources.json`。增删或修复信息源，仅需编辑该文件。
 
-## ➕ 新增信息源 = 增加一行
+## 新增信息源 = 增加一行
 
 在 `sources.json` 的 `sources` 数组中增加一行即可，无需改动代码：
 
@@ -124,7 +124,7 @@ sources.json  (108 个源 / 12 赛道)
 `hint` 为赛道标识（ai / semi / robot / auto / energy / bio / space / security / tech / consumer / macro / science）。
 `fetch.recent_days` 控制时间窗口（默认 7 天）；`redline_keywords` 为合规过滤词表。
 
-## 🗂️ 项目结构
+## 项目结构
 
 ```
 investment-news/
@@ -141,13 +141,13 @@ investment-news/
 └── docs/screenshot.png
 ```
 
-## 🧰 技术栈与依赖
+## 技术栈与依赖
 
 - **Python 3.7+**，**纯标准库**（urllib / json / xml.etree / http.server / subprocess）—— 抓取与看板零第三方依赖。
 - **一个大模型**：本机 Claude Code 订阅（`claude-cli`，$0），或任意 OpenAI 兼容 API key。
 - 需联网访问信息源（部分国际源可能需要代理）。
 
-## ⚖️ 使用边界 / 免责声明
+## 使用边界 / 免责声明
 
 - **仅本地运行**：不含任何托管、上传或服务端，数据仅留存于本机。
 - **仅读取公开 RSS / 接口**，保持低频访问，并遵守各信息源的服务条款。
@@ -155,13 +155,7 @@ investment-news/
 
 本软件依 [MIT 许可](LICENSE) 以「现状」提供，不附带任何形式的担保。
 
-## 🙋 作者
-
-**作者：** Simon 林 · X [@linsizhen](https://x.com/linsizhen) · TikTok [@simonlin0423](https://www.tiktok.com/@simonlin0423) · 邮箱：[simonlin0423@gmail.com](mailto:simonlin0423@gmail.com)
-
-一个将全球行业资讯提炼为中文要点的本地看板。欢迎提交 PR 补充更多赛道与信息源。
-
-## ☕ 赞赏
+## 赞赏
 
 如果这个工具帮到了你，欢迎请作者喝杯咖啡。
 
@@ -169,6 +163,10 @@ investment-news/
   <a href="https://buymeacoffee.com/simonlin1212"><img src="./assets/bmc-qr.png" width="180" alt="Buy Me a Coffee"></a>
 </p>
 
-## 📄 License
+## License
 
 [MIT](LICENSE)
+
+一个将全球行业资讯提炼为中文要点的本地看板。欢迎提交 PR 补充更多赛道与信息源。
+
+**作者：** Simon 林 · X [@linsizhen](https://x.com/linsizhen) · TikTok [@simonlin0423](https://www.tiktok.com/@simonlin0423) · 邮箱：[simonlin0423@gmail.com](mailto:simonlin0423@gmail.com)
