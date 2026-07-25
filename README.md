@@ -161,6 +161,10 @@ investment-news/
 
 一个将全球行业资讯提炼为中文要点的本地看板。欢迎提交 PR 补充更多赛道与信息源。
 
+## ☕ 赞赏
+
+如果这个工具帮到了你，欢迎请作者喝杯咖啡 —— [Buy Me a Coffee](https://buymeacoffee.com/simonlin1212)。
+
 ## 📄 License
 
 [MIT](LICENSE)

@@ -160,6 +160,10 @@ Provided "as is" under the [MIT License](LICENSE), without warranty of any kind.
 
 A local dashboard that distills global industry news into key points. PRs welcome for more sectors and sources.
 
+## ☕ Support
+
+If this tool saved you time, a coffee is appreciated — [Buy Me a Coffee](https://buymeacoffee.com/simonlin1212).
+
 ## 📄 License
 
 [MIT](LICENSE)
