@@ -1,6 +1,6 @@
 <p align="center"><a href="README.md">简体中文</a> | <b>English</b></p>
 
-# Investment News
+<h1 align="center">Investment News</h1>
 
 [中文](README.md) · **English**
 

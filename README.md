@@ -1,6 +1,6 @@
 <p align="center"><b>简体中文</b> | <a href="README_en.md">English</a></p>
 
-# Investment News · 投资资讯
+<h1 align="center">Investment News · 投资资讯</h1>
 
 <p align="center">
   <b>为 A股投资者追踪全球产业链领先信号 —— 12 大赛道一一对应 A股板块，覆盖 100+ 权威源，AI 每日提炼为中文要点，全程本地、零 API key。</b><br>
