@@ -18,6 +18,11 @@ CUTOFF = None
 REDLINE = []
 BEIJING = timezone(timedelta(hours=8))
 
+# 单源抓取超时（秒）。海外源在部分网络下握手就要十几秒，14s 会把大量本来能成功的
+# 源判成失败（issue #3）。走代理时建议再放宽。
+# urllib 默认就会读取 HTTPS_PROXY / HTTP_PROXY / NO_PROXY 环境变量，无需额外配置。
+TIMEOUT = int(os.environ.get("FETCH_TIMEOUT", "30"))
+
 def strip_html(s): return re.sub(r"\s+"," ", re.sub(r"<[^>]+>","", s or "")).strip()
 def local(tag): return tag.split("}")[-1]
 
@@ -36,7 +41,7 @@ def fetch(src):
     try:
         req = urllib.request.Request(src["url"], headers={"User-Agent":UA,
               "Accept":"application/rss+xml,application/atom+xml,application/xml,text/xml,*/*"})
-        with urllib.request.urlopen(req, timeout=14) as r:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             raw = r.read()
         root = ET.fromstring(raw)
         out = []

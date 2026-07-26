@@ -77,6 +77,25 @@ open http://localhost:8793   # Windows 使用 start，Linux 使用 xdg-open
 # 4) 点击左上角 ⟳，触发抓取与 AI 摘要，完成后自动刷新
 ```
 
+### 网络环境（海外源抓不动时看这里）
+
+106 个源里大部分是海外媒体。在直连不畅的网络下，会看到抓取结束时打印「N/106 个源抓取失败」。两个可调项：
+
+```bash
+# 走代理：urllib 原生读这两个环境变量，无需改代码
+export HTTPS_PROXY=http://127.0.0.1:7897
+export HTTP_PROXY=http://127.0.0.1:7897
+
+# 放宽单源超时（默认 30 秒），链路差时可以再加
+export FETCH_TIMEOUT=45
+
+python3 server.py
+```
+
+> 从看板按 ⟳ 触发时，子进程会继承你启动 `server.py` 那个 shell 的环境变量，所以代理要在启动前 export。
+>
+> **不建议关闭证书校验。** 如果大量源报 `CERTIFICATE_VERIFY_FAILED`，通常是本机证书链的问题而非本项目的：macOS 上用 python.org 安装包装的 Python 需要先跑一次 `Install Certificates.command`；走 MITM 代理则需要把代理的根证书装进系统信任。这些都比全局关掉校验安全。
+
 ## 工作原理
 
 ```
