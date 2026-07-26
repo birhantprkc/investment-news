@@ -33,10 +33,15 @@ class Handler(SimpleHTTPRequestHandler):
         try:
             py = sys.executable
             env = child_env()
+            # encoding 必须显式指定 utf-8：child_env() 已给子进程设了 PYTHONUTF8=1
+            # （强制它输出 UTF-8），父进程若按 locale 解码，中文 Windows 上就是 GBK，
+            # 必然 UnicodeDecodeError（issue #4）。errors="replace" 兜底异常字节。
             r1 = subprocess.run([py, "scripts/fetch.py"], cwd=HERE, env=env,
-                                capture_output=True, text=True, timeout=600)
+                                capture_output=True, text=True,
+                                encoding="utf-8", errors="replace", timeout=600)
             r2 = subprocess.run([py, "scripts/digest.py"], cwd=HERE, env=env,
-                                capture_output=True, text=True, timeout=1200)
+                                capture_output=True, text=True,
+                                encoding="utf-8", errors="replace", timeout=1200)
             ok = (r2.returncode == 0 and r1.returncode == 0)
             payload = {"ok": ok, "fetch": (r1.stdout or "")[-500:], "digest": (r2.stdout or "")[-500:]}
             if not ok:
