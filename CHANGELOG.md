@@ -15,6 +15,28 @@
 - **fetch.py 单源失败不再静默**:抓取出错的源会打出源名+原因,并在末尾汇总「X/N 个源抓取失败」;`None`(出错)与 `[]`(成功但近 N 天无新内容)区分开。
   *fetch: report failed sources by name; distinguish errored sources from empty-but-OK ones.*
 
+### 安全 / Security
+
+- **看板 XSS 与本地服务暴露**：`index.html` 的 RSS 外链未转义直入 `href`，新增 `safeUrl()` 仅放行 http(s) 并转义，堵住属性逃逸 XSS 与 `javascript:` / `data:` 伪协议（两处）；`server.py` 由绑 `0.0.0.0` 改为**仅绑 `127.0.0.1`**（看板会跑本机子进程，绝不能对局域网开放），移除通配 CORS，`/api/refresh` 只保留 POST（GET 可被 `<img>` / 跳转做 CSRF 触发子进程）。
+  *Escape RSS link URLs; bind to loopback only; drop wildcard CORS; POST-only refresh.*
+
+### 兼容性 / Compatibility
+
+- **中文 Windows 下点刷新按钮必崩**：`child_env()` 给子进程设了 `PYTHONUTF8=1` 强制其输出 UTF-8，父进程的 `subprocess.run(text=True)` 却按系统 locale 解码——中文 Windows 上即 GBK，必然 `UnicodeDecodeError`。两处显式加 `encoding="utf-8", errors="replace"`。（#4）
+  *Fix UnicodeDecodeError on Chinese Windows when clicking refresh.*
+
+### 网络 / Networking
+
+- **单源超时可配，默认 14s → 30s**：新增 `FETCH_TIMEOUT` 环境变量。14s 在链路差时会把大量本来能成功的源判成失败。README 新增「网络环境」小节，说明 urllib 原生读 `HTTPS_PROXY` / `HTTP_PROXY`（无需改代码），以及代理需在启动 `server.py` 前 export。（#3）
+  *Make per-source timeout configurable; default raised to 30s; document proxy usage.*
+  > 未采纳「默认关闭证书校验」的建议——实测 Python 3.9 / 3.12 下 monkeypatch `ssl._create_default_https_context` 对 `urllib.request.urlopen` 均生效，报告人推测的机制并不成立；默认关闭 TLS 校验是对所有用户的安全降级。README 改为指出证书链的正确修法。
+
+### 数据 / Data
+
+- **清掉跨栏重复源**：Engadget 与 少数派 原本同时挂在 `tech` 和 `consumer` 两栏，同一条新闻在看板出现两次。两家均为消费电子/数码媒体，从 `tech` 移除（106 源）。`build_sources.py` 同步去重并新增跨栏重复断言——再混进重复源会直接报错，而不是跑一次生成器就把去重结果覆盖回去。（#1）
+  *Remove cross-column duplicate sources; add a guard in the generator.*
+  > 条目级去重（不同源转载同一条新闻）见 PR #2，尚未合并。
+
 ## 1.0.0
 
 首个版本 / Initial release.
