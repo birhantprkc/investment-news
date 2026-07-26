@@ -97,9 +97,11 @@ TIER1 = {
  "tech":[
   ("TechCrunch","https://techcrunch.com/feed/"),("The Verge","https://www.theverge.com/rss/index.xml"),
   ("Ars Technica","https://feeds.arstechnica.com/arstechnica/index"),("Hacker News","https://hnrss.org/frontpage"),
-  ("WIRED","https://www.wired.com/feed/rss"),("Engadget","https://www.engadget.com/rss.xml"),
+  # Engadget / 少数派 归到 consumer 栏，不在此重复（同 URL 挂两栏会让同一条新闻
+  # 在看板出现两次；两家都是消费电子/数码媒体，且 consumer 栏源数远少于 tech）
+  ("WIRED","https://www.wired.com/feed/rss"),
   ("Techmeme","https://www.techmeme.com/feed.xml"),("36氪","https://36kr.com/feed"),
-  ("钛媒体","https://www.tmtpost.com/rss.xml"),("少数派","https://sspai.com/feed"),
+  ("钛媒体","https://www.tmtpost.com/rss.xml"),
   ("IT之家","https://www.ithome.com/rss/"),("GitHub Blog","https://github.blog/feed/"),
   ("Stratechery","https://stratechery.com/feed/"),
   ("虎嗅","https://rss.huxiu.com/"),("动点科技","https://cn.technode.com/feed/"),
@@ -157,6 +159,16 @@ def main():
     for key,name,url,ok in res:
         (sources if ok else dead).append({"key":key,"name":name,"url":url})
     out_sources = [{"name":s["name"],"hint":s["key"],"type":"rss","url":s["url"]} for s in sources]
+    # 同一 URL 只能出现在一栏：挂两栏会让同一条新闻在看板重复显示(issue #1)。
+    # 这里直接 fail，避免以后往 TIER1 里加源时又悄悄引入重复。
+    from collections import defaultdict as _dd
+    _seen = _dd(list)
+    for s in out_sources:
+        _seen[s["url"]].append(s["hint"])
+    _dups = {u:h for u,h in _seen.items() if len(h) > 1}
+    if _dups:
+        raise SystemExit("❌ TIER1 里有重复源(同一 URL 挂了多栏)，请先去重：\n" +
+                         "\n".join(f"  {u} -> {h}" for u,h in _dups.items()))
     # 红线只滤"真正不能碰的"(赌博/预测市场/加密/色情)。时政/地缘/关税照收(本工具=新闻源,非抖音口播)
     RED=["赌博","博彩","赌场","彩票","下注","押注","预测市场","polymarket","kalshi","prediction market",
          "加密货币","虚拟货币","比特币","以太坊","稳定币","crypto","bitcoin","ethereum","stablecoin",
