@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.0.2
+
+条目层去重 —— 不同源转载同一条新闻不再重复显示。
+
+- **fetch.py 新增条目层去重**（#1）：同栏内同一 URL 只留一条；标题相同且发布时间
+  相近（48h 内）的转载也只留最新的一条。此前只在配置层清过跨栏重复源，运行时
+  完全没有去重逻辑，姊妹站共用内容仍会重复显示。实测仓库现有数据 192 → 188 条，
+  剔除的 4 条全部是 The Robot Report 与 Robotics Business Review 指向同一链接。
+  *fetch: dedup items by URL and by syndicated title within each sector.*
+  - **只剥跟踪参数（utm_* / fbclid / spm 等），不整段砍 query**：不少源把文章 id
+    放在 query 里（`?p=123`），砍掉整段会把不同文章折叠成一条——那是静默丢内容。
+  - **标题去重限定 48h 窗口**：不加窗口会把「每周综述」这类跨周复用的固定栏目名
+    整片清掉，同样是丢内容。
+  - 运行末尾打印剔除条数，去重结果可见而非静默发生。
+- **新增 `scripts/test_fetch.py`**（15 例，纯标准库）：除了"重复要去掉"，重点锁死
+  两条反向边界——带文章 id 的不同 URL 必须都留、跨周同名栏目必须都留。
+  *Add dedup tests, including the two over-dedup regressions.*
+
+感谢 [@iyangjialin](https://github.com/iyangjialin) 在 PR
+[#2](https://github.com/simonlin1212/investment-news/pull/2) 里提出的去重思路。
+
+---
+
 ## 1.0.1
 
 健壮性修复 / Robustness fixes —— 自动化刷新场景下「某栏静默失败、没人发现」的问题。
