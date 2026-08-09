@@ -83,23 +83,30 @@ def dedup(items):
     seen_urls, seen_titles, out = set(), {}, []
     for it in items:
         url_key = normalize_url(it.get("url", ""))
-        if url_key and url_key in seen_urls:
-            continue
         title_key = normalize_title(it.get("title", ""))
         ts = it.get("ts", 0)
-        if title_key:
-            prev_ts = seen_titles.get(title_key)
-            # 任一方没有发布时间（ts=0）就**不做标题去重**：无从判断这两条是同一
-            # 条新闻的转载，还是同名栏目的不同期。判错的代价不对等——多显示一条
-            # 只是冗余，判错删掉就是永久丢一篇。这种情况交给 URL 去重兜底。
-            if prev_ts is not None and ts and prev_ts and (
-                abs(prev_ts - ts) <= DUP_TITLE_WINDOW_S
-            ):
-                continue
-            if ts:
-                seen_titles[title_key] = ts
+
+        dup_by_url = bool(url_key) and url_key in seen_urls
+        prev_ts = seen_titles.get(title_key) if title_key else None
+        # 任一方没有发布时间（ts=0）就**不做标题去重**：无从判断这两条是同一条
+        # 新闻的转载，还是同名栏目的不同期。判错的代价不对等——多显示一条只是
+        # 冗余，判错删掉就是永久丢一篇。这种情况交给 URL 去重兜底。
+        dup_by_title = (
+            prev_ts is not None and bool(ts) and bool(prev_ts)
+            and abs(prev_ts - ts) <= DUP_TITLE_WINDOW_S
+        )
+
+        # 🔴 被丢弃的条目也要登记它的两个 key，否则重复关系传递不下去：
+        # (标题A, url1) → (标题A, url2) → (改了标题B, url2) 三条其实是同一条新闻，
+        # 但第二条被按标题丢掉时如果不登记 url2，第三条就查不到 url2 已出现过，
+        # 于是同一条新闻出两张卡。
         if url_key:
             seen_urls.add(url_key)
+        if title_key and ts:
+            seen_titles.setdefault(title_key, ts)
+
+        if dup_by_url or dup_by_title:
+            continue
         out.append(it)
     return out
 

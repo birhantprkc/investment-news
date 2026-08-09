@@ -137,6 +137,28 @@ class TestDedup(unittest.TestCase):
         for q in ["utm_source=rss", "fbclid=abc", "gclid=xyz", "spm=1.2.3"]:
             self.assertEqual(normalize_url(f"https://x.com/a?{q}"), base, q)
 
+    def test_transitive_duplicate_chain_collapses(self):
+        """(A,url1) → (A,url2) → (改标题B,url2) 三条其实是同一条新闻。
+
+        第二条被按标题丢掉时若不登记 url2，第三条就查不到 url2 已出现过，
+        于是同一条新闻出两张卡（codex 复审指出）。
+        """
+        items = [
+            item("英伟达发布新卡", "https://a.com/x", BASE_TS),
+            item("英伟达发布新卡", "https://b.com/y", BASE_TS - 3600),
+            item("NVIDIA 推出新一代加速卡", "https://b.com/y", BASE_TS - 7200),
+        ]
+        self.assertEqual(len(dedup(items)), 1)
+
+    def test_skipped_item_does_not_over_dedup_later_distinct_news(self):
+        """登记被丢弃条目的 key 不能反过来误删真正不同的新闻。"""
+        items = [
+            item("英伟达发布新卡", "https://a.com/x", BASE_TS),
+            item("英伟达发布新卡", "https://b.com/y", BASE_TS - 3600),   # 转载，丢
+            item("AMD 发布新卡", "https://c.com/z", BASE_TS - 7200),     # 不同新闻，留
+        ]
+        self.assertEqual(len(dedup(items)), 2)
+
     def test_order_is_preserved(self):
         items = [
             item("第一条", "https://a.com/1", BASE_TS),
