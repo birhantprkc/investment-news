@@ -29,9 +29,13 @@ def local(tag): return tag.split("}")[-1]
 
 # 只剥「跟踪参数」，不整段砍 query：不少源把文章 id 放在 query 里（?p=123、?id=456），
 # 砍掉整段会把不同的文章折叠成同一条 —— 那是丢内容，比重复显示更糟。
+# ⚠️ 只列**无歧义**的跟踪参数。像 source / from / ref / share 这类通用词，在某些站
+# 点上是文章标识的一部分（`?source=alpha` 与 `?source=beta` 是两篇），无条件剥掉会
+# 让它们归一化成同一个 key、被去重丢掉一篇——那正是"去重做过头＝静默丢内容"。
+# 宁可少剥几个参数、偶尔重复显示一条，也不要丢文章。
 TRACKING_PARAMS = {
     "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id",
-    "from", "ref", "referrer", "source", "spm", "share", "share_token",
+    "spm", "share_token",
     "fbclid", "gclid", "msclkid", "mc_cid", "mc_eid", "_hsenc", "_hsmi",
 }
 
@@ -42,11 +46,19 @@ DUP_TITLE_WINDOW_S = 48 * 3600
 
 
 def normalize_url(url):
-    """URL 归一化，用于判断是不是同一个链接。剥跟踪参数 + 去锚点 + 去尾斜杠。"""
+    """URL 归一化，用于判断是不是同一个链接。剥跟踪参数 + 去锚点 + 去尾斜杠。
+
+    解析失败时退回"原串小写"当 key，**绝不抛异常**：本函数在 dedup() 里被调用，
+    那已经在 fetch() 的单源异常处理之外——一条畸形链接（如 `https://[broken`
+    会让 urlsplit 抛 ValueError）就会中断整个 main()，整次刷新一条新闻都写不出来。
+    """
     if not url:
         return ""
     url = url.strip()
-    parts = urlsplit(url)
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return url.lower()
     kept = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
             if k.lower() not in TRACKING_PARAMS]
     # scheme/host 大小写不敏感，path 保持原样（部分服务器 path 区分大小写）
@@ -77,12 +89,15 @@ def dedup(items):
         ts = it.get("ts", 0)
         if title_key:
             prev_ts = seen_titles.get(title_key)
-            # ts=0 表示源没给时间，无法判断远近，只按标题相同就算重复
-            if prev_ts is not None and (
-                not ts or not prev_ts or abs(prev_ts - ts) <= DUP_TITLE_WINDOW_S
+            # 任一方没有发布时间（ts=0）就**不做标题去重**：无从判断这两条是同一
+            # 条新闻的转载，还是同名栏目的不同期。判错的代价不对等——多显示一条
+            # 只是冗余，判错删掉就是永久丢一篇。这种情况交给 URL 去重兜底。
+            if prev_ts is not None and ts and prev_ts and (
+                abs(prev_ts - ts) <= DUP_TITLE_WINDOW_S
             ):
                 continue
-            seen_titles[title_key] = ts
+            if ts:
+                seen_titles[title_key] = ts
         if url_key:
             seen_urls.add(url_key)
         out.append(it)

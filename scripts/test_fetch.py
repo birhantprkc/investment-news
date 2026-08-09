@@ -97,10 +97,45 @@ class TestDedup(unittest.TestCase):
         ]
         self.assertEqual(len(dedup(items)), 2)
 
-    def test_items_without_timestamp(self):
-        """源没给时间（ts=0）时，同标题按重复处理。"""
+    def test_items_without_timestamp_are_both_kept(self):
+        """源没给时间时**不做**标题去重——这条原先写反了（codex 审计指出）。
+
+        没有时间就无从判断这两条是同一新闻的转载，还是同名栏目的不同期。判错的代价
+        不对等：多显示一条只是冗余，判错删掉是永久丢一篇。交给 URL 去重兜底。
+        """
         items = [item("无日期新闻", "https://a.com/1", 0), item("无日期新闻", "https://b.com/2", 0)]
+        self.assertEqual(len(dedup(items)), 2)
+
+    def test_same_url_still_deduped_without_timestamp(self):
+        """时间缺失也不影响 URL 去重——同一个链接仍然只留一条。"""
+        items = [item("无日期新闻", "https://a.com/1", 0), item("无日期新闻", "https://a.com/1", 0)]
         self.assertEqual(len(dedup(items)), 1)
+
+    def test_malformed_url_does_not_abort_the_run(self):
+        """畸形链接不能让整次刷新崩掉（codex P1）。
+
+        normalize_url 在 dedup() 里被调用，那已在 fetch() 的单源异常处理之外——
+        urlsplit 抛 ValueError 会中断 main()，一条新闻都写不出来。
+        """
+        self.assertIsInstance(normalize_url("https://[broken"), str)
+        items = [item("正常", "https://a.com/1"), item("畸形", "https://[broken")]
+        self.assertEqual(len(dedup(items)), 2)
+
+    def test_ambiguous_query_keys_are_not_stripped(self):
+        """source/from/ref 这类通用词可能是文章标识，不能无条件剥（codex P2）。"""
+        self.assertNotEqual(
+            normalize_url("https://x.com/a?source=alpha"),
+            normalize_url("https://x.com/a?source=beta"),
+        )
+        self.assertNotEqual(
+            normalize_url("https://x.com/a?from=1"), normalize_url("https://x.com/a?from=2")
+        )
+
+    def test_unambiguous_tracking_params_still_stripped(self):
+        """收紧之后，明确的跟踪参数仍要剥掉，否则去重就失效了。"""
+        base = normalize_url("https://x.com/a")
+        for q in ["utm_source=rss", "fbclid=abc", "gclid=xyz", "spm=1.2.3"]:
+            self.assertEqual(normalize_url(f"https://x.com/a?{q}"), base, q)
 
     def test_order_is_preserved(self):
         items = [
