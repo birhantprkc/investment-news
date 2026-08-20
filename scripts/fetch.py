@@ -102,11 +102,18 @@ def dedup(items):
         # 于是同一条新闻出两张卡。
         if url_key:
             seen_urls.add(url_key)
-        if title_key and ts:
-            seen_titles.setdefault(title_key, ts)
 
         if dup_by_url or dup_by_title:
+            if title_key and ts:
+                seen_titles.setdefault(title_key, ts)
             continue
+        # 保留的条目要**刷新**标题基准时间（不能 setdefault）：倒序遍历下，
+        # 同名栏目在窗口外合法复现后，若基准仍停在最新那期，更旧的窗内转载会因
+        # 与最新期时间差超窗而逃过去重——基准必须跟着「最近保留的那条」走。
+        # 丢弃分支保持 setdefault：被丢弃的转载不能反过来把窗口越拖越长，
+        # 否则链式转载会把窗口外的合法复现也吞掉（去重做过头＝静默丢内容）。
+        if title_key and ts:
+            seen_titles[title_key] = ts
         out.append(it)
     return out
 

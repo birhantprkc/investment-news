@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.0.3
+
+去重基准时间修复 —— 同名栏目窗口外复现后，更旧的窗内转载不再逃过去重。
+（下游 [Vibe-Research](https://github.com/simonlin1212/Vibe-Research) 分叉里 codex
+审查发现的两个去重 bug，回馈上游：一个在本仓库真实存在、已修；另一个本仓库
+实现本就正确，补测试锁行为防回归。）
+
+- **fix：保留条目时刷新标题去重的基准时间**。此前 `dedup()` 用 `setdefault`
+  登记标题时间基准，基准永远停在最新那期——同名栏目在 48h 窗口外合法复现
+  （合法保留）后，比它更旧的窗内转载与最新期时间差超窗，就逃过了去重。
+  现在保留条目时用赋值刷新基准（跟着「最近保留的那条」走），丢弃分支保持
+  `setdefault`（被丢弃的转载不能反过来把窗口越拖越长，链式转载会把窗口外的
+  合法复现也吞掉）。
+  *fetch: refresh the title-dedup baseline on kept items, so a within-window
+  reprint after a legitimate out-of-window recurrence no longer escapes dedup.*
+- **test：锁死「转义 query 分隔符不折叠」的行为**。`?id=a%26b%3Dc` 与
+  `?id=a&b=c` 必须归一化成不同的 key——`parse_qsl` 会把转义分隔符解码回
+  `&`/`=`，重组必须用 `urlencode` 重新转义；手工 `"&".join` 拼接会把两篇不同
+  文章误合并（下游分叉真实踩过此坑，本仓库实现本就用 `urlencode`，补测试防
+  日后改坏）。
+  *test: lock that percent-encoded query separators never collapse two
+  distinct URLs into one dedup key.*
+- `scripts/test_fetch.py` 21 → 23 例，新增的基准刷新用例已验证在 1.0.2 代码上
+  失败、修复后通过。
+
+---
+
 ## 1.0.2
 
 条目层去重 —— 不同源转载同一条新闻不再重复显示。

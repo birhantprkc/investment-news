@@ -37,6 +37,18 @@ class TestNormalizeUrl(unittest.TestCase):
         b = normalize_url("https://x.com/?p=456")
         self.assertNotEqual(a, b)
 
+    def test_escaped_query_separators_stay_distinct(self):
+        """?id=a%26b%3Dc 与 ?id=a&b=c 是两个不同链接，必须归一化成不同的 key。
+
+        parse_qsl 会把转义过的分隔符解码回 `&`/`=`，重组 query 必须用 urlencode
+        重新转义——手工 "&".join(f"{k}={v}") 拼接会让两者变成同一个 key，两篇
+        不同文章被误合并（下游 Vibe-Research 分叉真实踩过，此处锁行为防回归）。
+        """
+        self.assertNotEqual(
+            normalize_url("https://x.com/a?id=a%26b%3Dc"),
+            normalize_url("https://x.com/a?id=a&b=c"),
+        )
+
     def test_fragment_and_trailing_slash_ignored(self):
         self.assertEqual(
             normalize_url("https://x.com/a/#section"), normalize_url("https://x.com/a")
@@ -88,6 +100,22 @@ class TestDedup(unittest.TestCase):
             item("每周综述", "https://a.com/w1", BASE_TS - 14 * DAY),
         ]
         self.assertEqual(len(dedup(items)), 3)
+
+    def test_title_baseline_follows_last_kept_item(self):
+        """同名栏目在窗口外合法复现后，更旧的窗内转载仍要被去掉。
+
+        倒序三条同名：20h / 70h / 100h 前。第二条与第一条差 50h 超窗（48h）→
+        是合法复现，保留；第三条与第二条只差 30h → 是它的转载，必须删。
+        若保留时只 setdefault 登记、基准停在最新那期（20h），第三条与基准差
+        80h 超窗就逃过去重——基准必须跟着「最近保留的那条」走。
+        """
+        items = [
+            item("每周综述", "https://a.com/1", BASE_TS - 20 * 3600),
+            item("每周综述", "https://b.com/2", BASE_TS - 70 * 3600),
+            item("每周综述", "https://c.com/3", BASE_TS - 100 * 3600),  # 70h 那期的转载
+        ]
+        out = dedup(items)
+        self.assertEqual([i["url"] for i in out], ["https://a.com/1", "https://b.com/2"])
 
     def test_different_articles_with_query_ids_all_kept(self):
         """靠 query 区分文章的源，两篇都要留下（PR #2 的整段砍 query 会误删）。"""
