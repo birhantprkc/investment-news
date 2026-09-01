@@ -20,6 +20,14 @@
 
 ---
 
+## The Author Is Open to Opportunities
+
+The author is open to AI roles at Tencent and other leading technology companies in Shenzhen, and hopes to join a team passionate about AI development. Areas of interest include AI / Agent product development, real-world deployment, and AI consulting.
+
+Contact: [simonlin0423@gmail.com](mailto:simonlin0423@gmail.com)
+
+---
+
 ## What Is This
 
 **Investment News is a global industry-news dashboard built for China A-share investors.** Semiconductors, AI, robotics, EVs, space — these 12 sectors map directly onto A-share themes, and the leading signals that drive them usually surface first in global English-language sources. The tool covers 100+ authoritative sources worldwide, calls your own LLM to distill each sector's latest developments into a daily set of key points (in Chinese) with translations, presented in a single local browser dashboard.
